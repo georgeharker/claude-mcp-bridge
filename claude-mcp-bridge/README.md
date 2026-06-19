@@ -33,8 +33,24 @@ claude plugin install claude-mcp-bridge
 Then register the bridge endpoint with Claude Code so it can dial in:
 
 ```sh
-claude mcp add --transport http --scope user mcp-companion http://127.0.0.1:9741/mcp
+claude mcp add --transport http --scope user mcp-companion \
+  '${MCP_COMPANION_BRIDGE_URL:-http://127.0.0.1:9741/mcp}'
 ```
+
+> **Why the `${…}` URL (single-quoted).** Claude Code expands env vars in the MCP
+> config `url` at connect time. This makes one entry work two ways:
+>
+> - **Standalone Claude Code:** `MCP_COMPANION_BRIDGE_URL` is unset, so the `:-`
+>   default `http://127.0.0.1:9741/mcp` is used — a plain, tokenless connection.
+> - **Launched from Neovim** (CodeCompanion + [`mcp-companion.nvim`](https://github.com/georgeharker/mcp-companion.nvim)):
+>   the editor sets `MCP_COMPANION_BRIDGE_URL=http://127.0.0.1:9741/mcp/<token>`
+>   on the agent's launch, so Claude dials `/mcp/<token>`. The bridge then
+>   correlates the session to **that editor** — enabling the `neovim_*` editor-
+>   control tools to route back to it, plus per-chat server filtering.
+>
+> Single-quote it so your shell stores the `${…}` literally for Claude to expand.
+> If you previously registered the bare `http://127.0.0.1:9741/mcp` URL, re-run
+> with `--force` (or `claude mcp remove mcp-companion` first) to pick up the change.
 
 That's the two-layer setup: this plugin owns the lifecycle (start on SessionStart, stop on SessionEnd with grace), `claude mcp` owns the connection. They're independent — you can run the bridge yourself for testing and just use the `claude mcp` half, or you can pull `claude mcp` and leave the bridge running for other clients.
 
