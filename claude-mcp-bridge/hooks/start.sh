@@ -6,6 +6,17 @@
 
 set -u
 
+# --- Skip when the bridge was launched for us ----------------------------------
+# When Claude Code is spawned by CodeCompanion / mcp-companion, the host editor
+# has already started (and refcounts, via sharedserver) the bridge process, and
+# injects its tokened endpoint as MCP_COMPANION_BRIDGE_URL — the same var our
+# .mcp.json consumes (`${MCP_COMPANION_BRIDGE_URL:-http://127.0.0.1:9741/mcp}`).
+# In that context the bridge is not ours to launch: just connect to it. The host
+# Neovim instance outlives this session and owns the bridge's lifecycle.
+if [[ -n "${MCP_COMPANION_BRIDGE_URL:-}" ]]; then
+  exit 0
+fi
+
 ss_bin="${CLAUDE_PLUGIN_ROOT}/bin/sharedserver"
 
 # --- Resolve mcp-bridge command -------------------------------------------------

@@ -5,6 +5,13 @@
 
 set -u
 
+# Mirror start.sh: when launched under CodeCompanion / mcp-companion the bridge
+# was started (and is refcounted) by the host editor, not by us — we never ran
+# `sharedserver use`, so there is nothing to detach. The host owns teardown.
+if [[ -n "${MCP_COMPANION_BRIDGE_URL:-}" ]]; then
+  exit 0
+fi
+
 ss_bin="${CLAUDE_PLUGIN_ROOT}/bin/sharedserver"
 name="${CLAUDE_MCP_BRIDGE_NAME:-mcp-bridge}"
 
