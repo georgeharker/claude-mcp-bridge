@@ -25,7 +25,11 @@ Both plugins call the same `sharedserver` CLI underneath, and `sharedserver` tra
 ## Install
 
 ```sh
-# Local marketplace install
+# From GitHub (recommended)
+claude plugin marketplace add georgeharker/claude-mcp-combiner
+claude plugin install claude-mcp-combiner
+
+# …or from a local checkout
 claude plugin marketplace add /path/to/claude-mcp-combiner
 claude plugin install claude-mcp-combiner
 ```
